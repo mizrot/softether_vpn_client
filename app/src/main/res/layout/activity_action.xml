@@ -24,16 +24,10 @@
         android:layout_height="match_parent"
         android:gravity="center">
     <ImageButton
-        android:contentDescription="@string/vpn_powerbutton_description"
-        android:src="@drawable/powerbutton"
+        android:contentDescription="@string/vpn_power_button_description"
         android:id="@+id/powerButton"
         android:layout_height="200dp"
         android:layout_width="200dp"
-        android:text="@string/vpn_turn_on"
-        android:textAllCaps="false"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
         android:background="@drawable/button"
         />
     </LinearLayout>
