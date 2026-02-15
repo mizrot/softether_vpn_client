@@ -25,10 +25,11 @@ internal class SoftEtherVpnService : VpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return if (ACTION_VPN_CONNECT == intent?.action ?: false) {
+            client?.kill(null)
+
             updateVpnStatus(VPN_STATUS_CONNECTING)
             setBooleanPrefValue(true, MvcPreference.HOME_CONNECTOR, PreferenceManager.getDefaultSharedPreferences(this))
 
-            client?.kill(null)
             client = ControlClient(createBridge()).also {
                 beForegrounded()
                 it.run()
@@ -89,7 +90,13 @@ internal class SoftEtherVpnService : VpnService() {
     }
 
     override fun onDestroy() {
-        updateVpnStatus(VPN_STATUS_DISCONNECTED)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val currentStatus = prefs.getString(PREF_VPN_CONNECTION_STATUS, VPN_STATUS_DISCONNECTED)
+
+        if (currentStatus != VPN_STATUS_ERROR) {
+            updateVpnStatus(VPN_STATUS_DISCONNECTED)
+        }
+
         setBooleanPrefValue(false, MvcPreference.HOME_CONNECTOR, PreferenceManager.getDefaultSharedPreferences(this))
 
         client?.kill(null)

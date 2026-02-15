@@ -2,6 +2,7 @@ package kittoku.mvc
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.VpnService
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +24,11 @@ import kittoku.mvc.service.VPN_STATUS_ERROR
 
 class ActionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityActionBinding
+    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == PREF_VPN_CONNECTION_STATUS || key == MvcPreference.HOME_CONNECTOR.name) {
+            refreshState()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +42,15 @@ class ActionActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .registerOnSharedPreferenceChangeListener(prefListener)
         refreshState()
+    }
+
+    override fun onPause() {
+        PreferenceManager.getDefaultSharedPreferences(this)
+            .unregisterOnSharedPreferenceChangeListener(prefListener)
+        super.onPause()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -87,19 +101,13 @@ class ActionActivity : AppCompatActivity() {
 
     private fun refreshState() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val isEnabled = getBooleanPrefValue(MvcPreference.HOME_CONNECTOR, prefs)
-
         val status = prefs.getString(PREF_VPN_CONNECTION_STATUS, VPN_STATUS_DISCONNECTED) ?: VPN_STATUS_DISCONNECTED
 
-        val colorRes = if (!isEnabled) {
-            R.color.white
-        } else {
-            when (status) {
-                VPN_STATUS_CONNECTING -> R.color.status_connecting
-                VPN_STATUS_CONNECTED -> R.color.status_connected
-                VPN_STATUS_ERROR -> R.color.status_error
-                else -> R.color.white
-            }
+        val colorRes = when (status) {
+            VPN_STATUS_CONNECTING -> R.color.status_connecting
+            VPN_STATUS_CONNECTED -> R.color.status_connected
+            VPN_STATUS_ERROR -> R.color.status_error
+            else -> R.color.white
         }
 
         binding.root.setBackgroundColor(ContextCompat.getColor(this, colorRes))
