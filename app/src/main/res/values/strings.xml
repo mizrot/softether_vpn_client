@@ -2,4 +2,10 @@
 <resources>
     <string name="app_name">Minimum VPN Client for SoftEther VPN</string>
     <string name="app_name_short">Minimum VPN Client</string>
+    <string name="vpn_status_on">VPN is ON</string>
+    <string name="vpn_status_off">VPN is OFF</string>
+    <string name="vpn_turn_on">Turn VPN ON</string>
+    <string name="vpn_turn_off">Turn VPN OFF</string>
+    <string name="open_advanced_settings">Open advanced settings</string>
+    <string name="vpn_power_button_description">Power button</string>
 </resources>

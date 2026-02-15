@@ -15,8 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MinimumVPNClientForSoftEtherVPN">
         <activity
-            android:exported="true"
-            android:name=".MainActivity">
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ActionActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
