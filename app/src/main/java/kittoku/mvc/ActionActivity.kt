@@ -83,13 +83,9 @@ class ActionActivity : AppCompatActivity() {
         val isEnabled = isVpnEnabled()
 
         if (isEnabled) {
-            binding.statusLabel.text = getString(R.string.vpn_status_on)
-            binding.statusLabel.setTextColor(getColor(R.color.status_connected))
-            binding.powerButton.text = getString(R.string.vpn_turn_off)
+
         } else {
-            binding.statusLabel.text = getString(R.string.vpn_status_off)
-            binding.statusLabel.setTextColor(getColor(R.color.status_disconnected))
-            binding.powerButton.text = getString(R.string.vpn_turn_on)
+
         }
     }
 
