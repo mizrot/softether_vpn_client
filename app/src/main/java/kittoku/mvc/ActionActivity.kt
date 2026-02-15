@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import kittoku.mvc.databinding.ActivityActionBinding
 import kittoku.mvc.preference.MvcPreference
@@ -12,7 +13,12 @@ import kittoku.mvc.preference.accessor.getBooleanPrefValue
 import kittoku.mvc.preference.accessor.setBooleanPrefValue
 import kittoku.mvc.service.ACTION_VPN_CONNECT
 import kittoku.mvc.service.ACTION_VPN_DISCONNECT
+import kittoku.mvc.service.PREF_VPN_CONNECTION_STATUS
 import kittoku.mvc.service.SoftEtherVpnService
+import kittoku.mvc.service.VPN_STATUS_CONNECTED
+import kittoku.mvc.service.VPN_STATUS_CONNECTING
+import kittoku.mvc.service.VPN_STATUS_DISCONNECTED
+import kittoku.mvc.service.VPN_STATUS_ERROR
 
 
 class ActionActivity : AppCompatActivity() {
@@ -80,13 +86,23 @@ class ActionActivity : AppCompatActivity() {
     }
 
     private fun refreshState() {
-        val isEnabled = isVpnEnabled()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val isEnabled = getBooleanPrefValue(MvcPreference.HOME_CONNECTOR, prefs)
 
-        if (isEnabled) {
+        val status = prefs.getString(PREF_VPN_CONNECTION_STATUS, VPN_STATUS_DISCONNECTED) ?: VPN_STATUS_DISCONNECTED
 
+        val colorRes = if (!isEnabled) {
+            R.color.white
         } else {
-
+            when (status) {
+                VPN_STATUS_CONNECTING -> R.color.status_connecting
+                VPN_STATUS_CONNECTED -> R.color.status_connected
+                VPN_STATUS_ERROR -> R.color.status_error
+                else -> R.color.white
+            }
         }
+
+        binding.root.setBackgroundColor(ContextCompat.getColor(this, colorRes))
     }
 
     companion object {

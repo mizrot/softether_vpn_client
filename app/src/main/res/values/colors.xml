@@ -6,6 +6,7 @@
     <color name="yellow_700">#FFF57C00</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="status_connecting">#FFF59D</color>
     <color name="status_connected">#2E7D32</color>
-    <color name="status_disconnected">#C62828</color>
+    <color name="status_error">#C62828</color>
 </resources>

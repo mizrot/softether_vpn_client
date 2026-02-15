@@ -11,6 +11,10 @@ import kittoku.mvc.extension.*
 import kittoku.mvc.preference.MvcPreference
 import kittoku.mvc.preference.accessor.setBooleanPrefValue
 import kittoku.mvc.service.CHANNEL_ID
+import kittoku.mvc.service.PREF_VPN_CONNECTION_STATUS
+import kittoku.mvc.service.VPN_STATUS_CONNECTED
+import kittoku.mvc.service.VPN_STATUS_DISCONNECTED
+import kittoku.mvc.service.VPN_STATUS_ERROR
 import kittoku.mvc.service.client.*
 import kittoku.mvc.service.client.arp.ARPClient
 import kittoku.mvc.service.client.dhcp.DhcpClient
@@ -142,6 +146,7 @@ internal class ControlClient(private val bridge: ClientBridge) {
                 launchJobUDPIncoming()
             }
 
+            updateVpnStatus(VPN_STATUS_CONNECTED)
             logWriter?.report("VPN connection has been established")
 
 
@@ -267,6 +272,13 @@ internal class ControlClient(private val bridge: ClientBridge) {
         }
     }
 
+    private fun updateVpnStatus(status: String) {
+        PreferenceManager.getDefaultSharedPreferences(bridge.service).edit().also {
+            it.putString(PREF_VPN_CONNECTION_STATUS, status)
+            it.apply()
+        }
+    }
+
     internal fun kill(throwable: Throwable?) {
         bridge.scope.launch {
             mutex.withLock {
@@ -284,6 +296,8 @@ internal class ControlClient(private val bridge: ClientBridge) {
                         notify(message)
                         logWriter?.reportThrowable(throwable)
                     }
+
+                    updateVpnStatus(if (throwable == null) VPN_STATUS_DISCONNECTED else VPN_STATUS_ERROR)
 
                     isClosing = true
 

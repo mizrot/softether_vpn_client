@@ -10,6 +10,8 @@ import android.net.VpnService
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import kittoku.mvc.R
+import kittoku.mvc.preference.MvcPreference
+import kittoku.mvc.preference.accessor.setBooleanPrefValue
 import kittoku.mvc.service.client.ClientBridge
 import kittoku.mvc.service.client.ControlClient
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -23,6 +25,9 @@ internal class SoftEtherVpnService : VpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return if (ACTION_VPN_CONNECT == intent?.action ?: false) {
+            updateVpnStatus(VPN_STATUS_CONNECTING)
+            setBooleanPrefValue(true, MvcPreference.HOME_CONNECTOR, PreferenceManager.getDefaultSharedPreferences(this))
+
             client?.kill(null)
             client = ControlClient(createBridge()).also {
                 beForegrounded()
@@ -31,6 +36,9 @@ internal class SoftEtherVpnService : VpnService() {
 
             Service.START_STICKY
         } else {
+            updateVpnStatus(VPN_STATUS_DISCONNECTED)
+            setBooleanPrefValue(false, MvcPreference.HOME_CONNECTOR, PreferenceManager.getDefaultSharedPreferences(this))
+
             client?.kill(null)
             client = null
 
@@ -72,7 +80,18 @@ internal class SoftEtherVpnService : VpnService() {
         startForeground(1, builder.build())
     }
 
+
+    private fun updateVpnStatus(status: String) {
+        PreferenceManager.getDefaultSharedPreferences(this).edit().also {
+            it.putString(PREF_VPN_CONNECTION_STATUS, status)
+            it.apply()
+        }
+    }
+
     override fun onDestroy() {
+        updateVpnStatus(VPN_STATUS_DISCONNECTED)
+        setBooleanPrefValue(false, MvcPreference.HOME_CONNECTOR, PreferenceManager.getDefaultSharedPreferences(this))
+
         client?.kill(null)
         client = null
     }
